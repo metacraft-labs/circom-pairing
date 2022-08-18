@@ -10,7 +10,9 @@ template AggregateKeysBitmask() {
   var N = 512;
   signal input points[N][J][K];
   signal input bitmask[N];
-  var zero[2][7] = [[1, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0]];
+
+  // generator point used here but it should not matter https://github.com/yi-sun/circom-pairing/issues/12#issuecomment-1219292306
+  var zero[2][7] = [[16589478066046651, 22658679592837110, 35004527604248919, 16789302793630161, 7530538873701625, 32234187716135413, 1684953952445941], [11860609209853921, 4091579406338073, 12578493816062195, 13088963032438982, 24961455755233629,8501508834176643, 612415636564648]];
 
   signal output out[J][K];
 

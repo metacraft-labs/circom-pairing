@@ -317,15 +317,27 @@ template EllipticCurveAdd(n, k, a1, b1, p){
         y_equal.in[0][idx] <== a[1][idx];
         y_equal.in[1][idx] <== b[1][idx];
     }
+    // if a.x = b.x then a = +-b
+    // if a = b then a + b = 2*a so we need to do point doubling
+    // if a = -a then out is infinity
+    signal add_is_double;
+    add_is_double <== x_equal.out * y_equal.out; // AND gate
+
+    // if a.x = b.x, need to replace b.x by a different number just so AddUnequal doesn't break
+    // I will do this in a dumb way: replace b[0][0] by (b[0][0] == 0)
+    component iz = IsZero();
+    iz.in <== b[0][0];
 
     component add = EllipticCurveAddUnequal(n, k, p);
-
+    component doub = EllipticCurveDouble(n, k, a1, b1, p);
     for(var i=0; i<2; i++)for(var idx=0; idx<k; idx++){
         add.a[i][idx] <== a[i][idx];
         if(i==0 && idx==0)
-            add.b[i][idx] <== b[i][idx];
+            add.b[i][idx] <== b[i][idx] + x_equal.out * (iz.out - b[i][idx]);
         else
             add.b[i][idx] <== b[i][idx];
+
+        doub.in[i][idx] <== a[i][idx];
     }
 
     // out = O iff ( a = O AND b = O ) OR ( x_equal AND NOT y_equal )
@@ -337,7 +349,7 @@ template EllipticCurveAdd(n, k, a1, b1, p){
 
     signal tmp[3][2][k];
     for(var i=0; i<2; i++)for(var idx=0; idx<k; idx++){
-        tmp[0][i][idx] <== add.out[i][idx];
+        tmp[0][i][idx] <== add.out[i][idx] + add_is_double * (doub.out[i][idx] - add.out[i][idx]);
         // if a = O, then a + b = b
         tmp[1][i][idx] <== tmp[0][i][idx] + aIsInfinity * (b[i][idx] - tmp[0][i][idx]);
         // if b = O, then a + b = a
@@ -497,5 +509,3 @@ template EllipticCurveScalarMultiplyUnequal(n, k, b, x, p){
     for(var i=0; i<2; i++)for(var idx=0; idx<k; idx++)
         out[i][idx] <== R[0][i][idx];
 }
-
-
