@@ -20,7 +20,7 @@ def parse_signal_arrays(sigs, debug=False):
                 name = split[0]
             else:
                 is_array = False
-                
+
             if name not in curr:
                 if (not is_array):
                     if idx == len(parsed) - 1:
@@ -74,12 +74,12 @@ def parse_signal_arrays(sigs, debug=False):
     return ret
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--witness_file', type=str, default='../build/dev/witness.json')
-parser.add_argument('--sym_file', type=str, default='../build/dev/dev.sym')
+parser.add_argument('--witness_file', type=str, default='../build/addfp/witness.json')
+parser.add_argument('--sym_file', type=str, default='../build/addfp/addfp.sym')
 
 parser.add_argument('--debug', action='store_true', default=False)
 parser.add_argument('--reparse', action='store_true', default=False)
-parser.add_argument('--sig_list_file', type=str, default='../build/dev/dev.sig')
+parser.add_argument('--sig_list_file', type=str, default='../build/addfp/addfp.sig')
 
 parser.add_argument('--width', type=int, default=100)
 parser.add_argument('--depth', type=int, default=3)

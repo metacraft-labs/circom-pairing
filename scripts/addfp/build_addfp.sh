@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 PHASE1=../../circuits/pot24_final.ptau
-BUILD_DIR=../../build/addfp2
-CIRCUIT_NAME=addfp2
+BUILD_DIR=../../build/addfp
+CIRCUIT_NAME=addfp
 
 if [ -f "$PHASE1" ]; then
     echo "Found Phase 1 ptau file"
@@ -30,7 +30,7 @@ start=`date +%s`
 node "$BUILD_DIR"/"$CIRCUIT_NAME"_js/generate_witness.js "$BUILD_DIR"/"$CIRCUIT_NAME"_js/"$CIRCUIT_NAME".wasm input_"$CIRCUIT_NAME".json "$BUILD_DIR"/witness.wtns
 end=`date +%s`
 echo "DONE ($((end-start))s)"
-snarkjs wej "$BUILD_DIR"/witness.wtns "$BUILD_DIR"/witness.json
+npx snarkjs wej "$BUILD_DIR"/witness.wtns "$BUILD_DIR"/witness.json
 
 echo "****GENERATING ZKEY 0****"
 start=`date +%s`
