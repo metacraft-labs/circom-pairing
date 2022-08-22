@@ -9,8 +9,12 @@ template HashTwo() {
 
   component sha256 = Sha256(512);
 
-  for(var i = 0; i < 512; i++) {
-    sha256.in[i] <== in[i \ 256][i % 256];
+  for(var i = 0; i < 256; i++) {
+    sha256.in[i] <== in[0][i];
+  }
+
+  for(var i = 256; i < 512; i++) {
+    sha256.in[i] <== in[1][i - 256];
   }
 
   for(var i = 0; i < 256; i++) {
@@ -19,7 +23,7 @@ template HashTwo() {
 }
 
 template HashTreeRoot() {
-  var N = 2;
+  var N = 512;
   signal input points[N][384];
 
   signal output out[256];
