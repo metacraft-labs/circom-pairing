@@ -33,7 +33,3 @@ template Compress() {
   bits[1] <== 0;
   bits[2] <== lessThan.out;
 }
-
-
-
-component main = Compress();

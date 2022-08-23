@@ -56,6 +56,3 @@ template AggregateKeysBitmask() {
     }
   }
 }
-
-component main = AggregateKeysBitmask();
-

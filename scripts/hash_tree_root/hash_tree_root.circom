@@ -25,6 +25,7 @@ template HashTwo() {
 template HashTreeRoot() {
   var N = 512;
   signal input points[N][384];
+  signal input aggregatedKey[384];
 
   signal output out[256];
 
@@ -64,9 +65,24 @@ template HashTreeRoot() {
   }
 
 
+  component hash = Sha256(512);
+
+  for(var i = 0; i < 384; i++) {
+    hash.in[i] <== aggregatedKey[i];
+  }
+
+  for(var i = 384; i < 512; i++) {
+    hash.in[i] <== 0;
+  }
+
+  component hasher = HashTwo();
+
   for(var i = 0; i < 256; i++) {
-    out[i] <== hashers[N - 2].out[i];
+    hasher.in[0][i] <== hashers[N - 2].out[i];
+    hasher.in[1][i] <== hash.out[i];
+  }
+
+  for(var i = 0; i < 256; i++) {
+    out[i] <== hasher.out[i];
   }
 }
-
-component main = HashTreeRoot();
