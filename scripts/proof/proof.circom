@@ -9,10 +9,11 @@ template Proof() {
   var K = 7;
   var N = 512;
   signal input points[N][2][K];
+  signal input aggregatedKey[384];
+
   signal input bitmask[N];
   signal input signature[2][2][K];
   signal input hash[2][2][K];
-  signal input aggregatedKey[384];
 
   signal output hashTreeRoot[256];
 
@@ -67,4 +68,4 @@ template Proof() {
   }
 }
 
-component main = Proof();
+component main { public [ bitmask, signature, hash ] } = Proof();
