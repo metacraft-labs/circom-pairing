@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-PHASE1=../../circuits/pot25_final.ptau
-CIRCUIT_NAME=proof
+PHASE1=../../circuits/pot28_final.ptau
+CIRCUIT_NAME=proof_efficient
 BUILD_DIR=../../build/"$CIRCUIT_NAME"
 
 if [ -f "$PHASE1" ]; then
@@ -21,7 +21,7 @@ echo $PWD
 echo "****COMPILING CIRCUIT****"
 start=`date +%s`
 #circom "$CIRCUIT_NAME".circom --O0 --c --output "$BUILD_DIR"
-circom "$CIRCUIT_NAME".circom --O1 --r1cs --sym --c --output "$BUILD_DIR"
+circom "$CIRCUIT_NAME".circom --O2 --r1cs --sym --c --output "$BUILD_DIR"
 end=`date +%s`
 echo "DONE ($((end-start))s)"
 
