@@ -40,5 +40,5 @@ template AggregateKeys(n) {
   }
 }
 
-component main = AggregateKeys(512);
+component main = AggregateKeys(12);
 
