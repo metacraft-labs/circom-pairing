@@ -47,27 +47,29 @@ template ProofEfficient(N) {
     }
   }
 
-  component bitmaskNum2Bits = Num2Bits(2);
-  bitmaskNum2Bits.in <== bitmask[0];
+  component bitmaskNum2Bits[3];
 
-  for(var i = 0; i < 2; i++) {
-    aggregateKeys.bitmask[i] <== bitmaskNum2Bits.out[i];
+  bitmaskNum2Bits[0] = Num2Bits(6);
+  bitmaskNum2Bits[0].in <== bitmask[0];
+
+  for(var i = 0; i < 6; i++) {
+    aggregateKeys.bitmask[i] <== bitmaskNum2Bits[0].out[i];
   }
 
-  // bitmaskNum2Bits[1] = Num2Bits(253);
-  // bitmaskNum2Bits[1].in <== bitmask[1];
+  bitmaskNum2Bits[1] = Num2Bits(253);
+  bitmaskNum2Bits[1].in <== bitmask[1];
 
-  // for(var i = 0; i < 253; i++) {
-  //   aggregateKeys.bitmask[i+6] <== bitmaskNum2Bits[1].out[i];
-  // }
+  for(var i = 0; i < 253; i++) {
+    aggregateKeys.bitmask[i+6] <== bitmaskNum2Bits[1].out[i];
+  }
 
 
-  // bitmaskNum2Bits[2] = Num2Bits(253);
-  // bitmaskNum2Bits[2].in <== bitmask[2];
+  bitmaskNum2Bits[2] = Num2Bits(253);
+  bitmaskNum2Bits[2].in <== bitmask[2];
 
-  // for(var i = 0; i < 253; i++) {
-  //   aggregateKeys.bitmask[i+6+253] <== bitmaskNum2Bits[2].out[i];
-  // }
+  for(var i = 0; i < 253; i++) {
+    aggregateKeys.bitmask[i+6+253] <== bitmaskNum2Bits[2].out[i];
+  }
 
   component verify = CoreVerifyPubkeyG1(55, K);
 
@@ -82,9 +84,9 @@ template ProofEfficient(N) {
   component bits2Num[2];
   bits2Num[0] = Bits2Num(253);
   for(var i = 0; i < 253; i++) {
-    bits2Num[0].in[1] <== hasher.out[i];
+    bits2Num[0].in[i] <== hasher.out[i];
   }
-  hashTreeRoot[0] <== bits2Num[0].out;
+  hashTreeRoot[1] <== bits2Num[0].out;
 
   bits2Num[1] = Bits2Num(3);
 
@@ -92,7 +94,7 @@ template ProofEfficient(N) {
     bits2Num[1].in[i] <== hasher.out[253+i];
   }
 
-  hashTreeRoot[1] <== bits2Num[1].out;
+  hashTreeRoot[0] <== bits2Num[1].out;
 }
 
-component main { public [ bitmask, signature, hash ] } = ProofEfficient(2);
+component main { public [ bitmask, signature, hash ] } = ProofEfficient(512);
