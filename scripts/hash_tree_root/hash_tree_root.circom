@@ -22,8 +22,7 @@ template HashTwo() {
   }
 }
 
-template HashTreeRoot() {
-  var N = 512;
+template HashTreeRoot(N) {
   signal input points[N][384];
   signal input aggregatedKey[384];
 
@@ -86,3 +85,5 @@ template HashTreeRoot() {
     out[i] <== hasher.out[i];
   }
 }
+
+component main = HashTreeRoot(2);

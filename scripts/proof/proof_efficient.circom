@@ -39,6 +39,7 @@ template ProofEfficient(N) {
 
   component aggregateKeys = AggregateKeysBitmask(N);
 
+
   for(var i = 0; i < N; i++) {
     for(var j = 0; j < 2; j++) {
       for(var k = 0; k < K; k++) {
@@ -71,15 +72,15 @@ template ProofEfficient(N) {
     aggregateKeys.bitmask[i+6+253] <== bitmaskNum2Bits[2].out[i];
   }
 
-  component verify = CoreVerifyPubkeyG1(55, K);
+  // component verify = CoreVerifyPubkeyG1(55, K);
 
-  for(var j = 0; j < 2; j++) {
-    for(var k = 0; k < K; k++) {
-      verify.pubkey[j][k] <== aggregateKeys.out[j][k];
-      verify.signature[j][j][k] <== signature[j][j][k];
-      verify.hash[j][j][k] <== hash[j][j][k];
-    }
-  }
+  // for(var j = 0; j < 2; j++) {
+  //   for(var k = 0; k < K; k++) {
+  //     verify.pubkey[j][k] <== aggregateKeys.out[j][k];
+  //     verify.signature[j][j][k] <== signature[j][j][k];
+  //     verify.hash[j][j][k] <== hash[j][j][k];
+  //   }
+  // }
 
   component bits2Num[2];
   bits2Num[0] = Bits2Num(253);
@@ -97,4 +98,4 @@ template ProofEfficient(N) {
   hashTreeRoot[0] <== bits2Num[1].out;
 }
 
-component main { public [ bitmask, signature, hash ] } = ProofEfficient(512);
+component main { public [ bitmask, signature, hash ] } = ProofEfficient(2);
