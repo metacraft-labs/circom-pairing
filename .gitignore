@@ -6,3 +6,4 @@ pot*.ptau
 *~
 **/node_modules/
 **/.DS_STORE
+.yarn
