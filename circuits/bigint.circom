@@ -1,8 +1,8 @@
 pragma circom 2.0.3;
 
-include "../node_modules/circomlib/circuits/comparators.circom";
-include "../node_modules/circomlib/circuits/bitify.circom";
-include "../node_modules/circomlib/circuits/gates.circom";
+include "../../../node_modules/circomlib/circuits/comparators.circom";
+include "../../../node_modules/circomlib/circuits/bitify.circom";
+include "../../../node_modules/circomlib/circuits/gates.circom";
 
 include "bigint_func.circom";
 
@@ -209,19 +209,19 @@ template BigAdd(n, k) {
     out[k] <== unit[k - 2].carry;
 }
 
-/* 
+/*
 Polynomial Multiplication
 Inputs:
     - a = a[0] + a[1] * X + ... + a[k-1] * X^{k-1}
     - b = b[0] + b[1] * X + ... + b[k-1] * X^{k-1}
 Output:
     - out = out[0] + out[1] * X + ... + out[2 * k - 2] * X^{2*k - 2}
-    - out = a * b as polynomials in X 
+    - out = a * b as polynomials in X
 Notes:
     - Optimization due to xJsnark:
     -- witness is calculated by normal polynomial multiplication
     -- out is contrained by evaluating out(X) === a(X) * b(X) at X = 0, ..., 2*k - 2
-    - If a[i], b[j] have absolute value < B, then out[i] has absolute value < k * B^2 
+    - If a[i], b[j] have absolute value < B, then out[i] has absolute value < k * B^2
 m_out is the expected max number of bits in the output registers
 */
 template BigMultShortLong(n, k, m_out) {
@@ -248,7 +248,7 @@ template BigMultShortLong(n, k, m_out) {
    var k2 = 2 * k - 1;
    var pow[k2][k2]; // we cache the exponent values because it makes a big difference in witness generation time
    for(var i = 0; i<k2; i++)for(var j=0; j<k2; j++)
-       pow[i][j] = i ** j; 
+       pow[i][j] = i ** j;
 
    var a_poly[2 * k - 1];
    var b_poly[2 * k - 1];
@@ -272,14 +272,14 @@ template BigMultShortLong(n, k, m_out) {
 
 /*
 same as BigMultShortLong except a has degree ka - 1, b has degree kb - 1
-    - If a[i], b[j] have absolute value < B, then out[i] has absolute value < min(ka, kb) * B^2 
+    - If a[i], b[j] have absolute value < B, then out[i] has absolute value < min(ka, kb) * B^2
 */
 template BigMultShortLongUnequal(n, ka, kb, m_out) {
     assert(n <= 126);
     signal input a[ka];
     signal input b[kb];
     signal output out[ka + kb - 1];
-    
+
     var prod_val[ka + kb - 1];
     for (var i = 0; i < ka + kb - 1; i++) {
 	prod_val[i] = 0;
@@ -294,9 +294,9 @@ template BigMultShortLongUnequal(n, ka, kb, m_out) {
    }
 
    var k2 = ka + kb - 1;
-   var pow[k2][k2]; 
+   var pow[k2][k2];
    for(var i = 0; i<k2; i++)for(var j=0; j<k2; j++)
-       pow[i][j] = i ** j; 
+       pow[i][j] = i ** j;
 
    var a_poly[ka + kb - 1];
    var b_poly[ka + kb - 1];
@@ -575,7 +575,7 @@ template BigMod2(n, k, m) {
 
 // a[i], b[i] in 0... 2**n-1
 // represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
-// calculates (a+b)%p, where 0<= a,b < p 
+// calculates (a+b)%p, where 0<= a,b < p
 template BigAddModP(n, k){
     assert(n <= 252);
     signal input a[k];
@@ -594,7 +594,7 @@ template BigAddModP(n, k){
         lt.b[i] <== p[i];
     }
     lt.a[k] <== add.out[k];
-    lt.b[k] <== 0; 
+    lt.b[k] <== 0;
 
     component sub = BigSub(n,k+1);
     for (var i = 0; i < k; i++) {
@@ -603,7 +603,7 @@ template BigAddModP(n, k){
     }
     sub.a[k] <== add.out[k];
     sub.b[k] <== 0;
-    
+
     sub.out[k] === 0;
     for (var i = 0; i < k; i++) {
         out[i] <== sub.out[i];
@@ -733,7 +733,7 @@ template BigModInv(n, k) {
 }
 
 /* Taken from circom-ecdsa
-Input: 
+Input:
     - in = in[0] + in[1] * X + ... + in[k-1] * X^{k-1} as signed overflow representation
     - Assume each in[i] is in range (-2^{m-1}, 2^{m-1})
 Implements:
@@ -741,15 +741,15 @@ Implements:
 */
 template CheckCarryToZero(n, m, k) {
     assert(k >= 2);
-    
+
     var EPSILON = 1; // see below for why 1 is ok
-    
+
     signal input in[k];
-    
+
     signal carry[k];
     component carryRangeChecks[k];
     for (var i = 0; i < k-1; i++){
-        carryRangeChecks[i] = Num2Bits(m + EPSILON - n); 
+        carryRangeChecks[i] = Num2Bits(m + EPSILON - n);
         if( i == 0 ){
             carry[i] <-- in[i] / (1<<n);
             in[i] === carry[i] * (1<<n);
@@ -760,15 +760,15 @@ template CheckCarryToZero(n, m, k) {
         }
         // checking carry is in the range of -2^(m-n-1+eps), 2^(m-n-1+eps)
         carryRangeChecks[i].in <== carry[i] + ( 1<< (m + EPSILON - n - 1));
-        // carry[i] is bounded by 2^{m-1} * (2^{-n} + 2^{-2n} + ... ) = 2^{m-n-1} * ( 1/ (1-2^{-n})) < 2^{m-n} by geometric series 
+        // carry[i] is bounded by 2^{m-1} * (2^{-n} + 2^{-2n} + ... ) = 2^{m-n-1} * ( 1/ (1-2^{-n})) < 2^{m-n} by geometric series
     }
-    
+
     in[k-1] + carry[k-2] === 0;
-    
+
 }
 
-/* 
-Let X = 2^n 
+/*
+Let X = 2^n
 Input:
     - in is length k + m array in signed overflow representation
     - in = in[0] + in[1] * X + ... + in[k+m-1] * X^{k+m-1}
@@ -777,17 +777,17 @@ Input:
 Output:
     - out = out[0] + out[1] * X + ... + out[k-1] * X^{k-1} is BigInt congruent to in (mod p)
 Implementation:
-    - For i >= k, we precompute X^i = r[i] mod p, where r[i] represented as k registers with r[i][j] in [0, 2^n) 
+    - For i >= k, we precompute X^i = r[i] mod p, where r[i] represented as k registers with r[i][j] in [0, 2^n)
     - in[i] * X^i is replaced by sum_j in[i] * r[i][j] * X^j
 Notes:
     - If each in[i] has absolute value <B, then out[i] has absolute value < (m+1) * 2^n * B
 m_out is the expected max number of bits in the output registers
 */
 template PrimeReduce(n, k, m, p, m_out){
-    signal input in[m+k]; 
+    signal input in[m+k];
     signal output out[k];
 
-    var two[k]; 
+    var two[k];
     var e[k];
     for(var i=1; i<k; i++){
         two[i]=0;
@@ -795,30 +795,30 @@ template PrimeReduce(n, k, m, p, m_out){
     }
     two[0] = 2;
 
-    
+
     e[0] = n;
-    var pow2n[50] = mod_exp(n, k, two, p, e); 
+    var pow2n[50] = mod_exp(n, k, two, p, e);
     e[0] = k;
     assert(k < (1<<n) );
     var pow2nk[50] = mod_exp(n, k, pow2n, p, e);
-    
-    var r[m][50]; 
+
+    var r[m][50];
     for(var i=0; i<m; i++){
-        // r[i] = 2^{n(k+i)} mod p 
+        // r[i] = 2^{n(k+i)} mod p
         if(i==0){
             r[i] = pow2nk;
         }else{
-            r[i] = prod_mod(n, k, r[i-1], pow2n, p);  
+            r[i] = prod_mod(n, k, r[i-1], pow2n, p);
         }
-    } 
-    var out_sum[k]; 
+    }
+    var out_sum[k];
     for(var i=0; i<k; i++)
         out_sum[i] = in[i];
     for(var i=0; i<m; i++)
         for(var j=0; j<k; j++)
-            out_sum[j] += in[i+k] * r[i][j]; // linear constraint 
+            out_sum[j] += in[i+k] * r[i][j]; // linear constraint
     for(var i=0; i<k; i++)
-        out[i] <== out_sum[i]; 
+        out[i] <== out_sum[i];
     /*component range_checks[k];
     for (var i = 0; i < k; i++) {
         range_checks[i] = Num2Bits(m_out+1);
@@ -826,17 +826,17 @@ template PrimeReduce(n, k, m, p, m_out){
     }*/
 }
 
-/* 
+/*
 Polynomial multiplication in 2 variables
 Input:
-    - a = sum_{i=0}^{l-1} sum_{j=0}^{k-1} a[i][j] * w^i * X^j 
-    - b = sum_{i=0}^{l-1} sum_{j=0}^{k-1} b[i][j] * w^i * X^j 
+    - a = sum_{i=0}^{l-1} sum_{j=0}^{k-1} a[i][j] * w^i * X^j
+    - b = sum_{i=0}^{l-1} sum_{j=0}^{k-1} b[i][j] * w^i * X^j
 Output:
-    - out = sum_{i=0}^{2*l-2} sum_{j=0}^{2*k-1} out[i][j] * w^i * X^j 
-    - out = a * b as product of polynomials in two variables w, X 
+    - out = sum_{i=0}^{2*l-2} sum_{j=0}^{2*k-1} out[i][j] * w^i * X^j
+    - out = a * b as product of polynomials in two variables w, X
 Notes:
     - Uses same xJsnark optimization as BigMultShortLong
-    - If a[i][j], b[i][j] have absolute value < B, then out[i][j] has absolute value < l * k * B^2 
+    - If a[i][j], b[i][j] have absolute value < B, then out[i][j] has absolute value < l * k * B^2
 Use case: one variable will end up being 2^n; the other will be the field extension generator
 */
 template BigMultShortLong2D(n, k, l) {
@@ -868,11 +868,11 @@ template BigMultShortLong2D(n, k, l) {
             out[i][j] <-- prod_val[i][j];
         }
     }
-    
+
     var k2 = (2*k-1 > 2*l-1) ? 2*k-1 : 2*l-1;
-    var pow[k2][k2]; 
+    var pow[k2][k2];
     for(var i = 0; i<k2; i++)for(var j=0; j<k2; j++)
-        pow[i][j] = i ** j; 
+        pow[i][j] = i ** j;
 
     var a_poly[2*l-1][2*k-1];
     var b_poly[2*l-1][2*k-1];
@@ -895,7 +895,7 @@ template BigMultShortLong2D(n, k, l) {
             }
         }
     }
-    
+
     for (var i = 0; i < 2*l-1; i++) {
         for (var j = 0; j < 2*k-1; j++) {
             out_poly[i][j] === a_poly[i][j] * b_poly[i][j];
@@ -903,10 +903,10 @@ template BigMultShortLong2D(n, k, l) {
     }
 }
 
-/* 
+/*
 Same as BigMultShortLong2D except a has degrees la - 1, ka - 1 and b has degrees lb - 1, kb - 1
 Notes:
-    - If a[i][j], b[i][j] have absolute value < B, then out[i][j] has absolute value < min(la, lb) * min(ka, kb) * B^2 
+    - If a[i][j], b[i][j] have absolute value < B, then out[i][j] has absolute value < min(la, lb) * min(ka, kb) * B^2
 */
 template BigMultShortLong2DUnequal(n, ka, kb, la, lb) {
     signal input a[la][ka];
@@ -939,9 +939,9 @@ template BigMultShortLong2DUnequal(n, ka, kb, la, lb) {
     }
 
     var k2 = (ka + kb -1 > la + lb -1) ? ka + kb - 1 : la + lb -1;
-    var pow[k2][k2]; 
+    var pow[k2][k2];
     for(var i = 0; i<k2; i++)for(var j=0; j<k2; j++)
-        pow[i][j] = i ** j; 
+        pow[i][j] = i ** j;
 
     var a_poly[la + lb - 1][ka + kb -1];
     var b_poly[la + lb - 1][ka + kb -1];
