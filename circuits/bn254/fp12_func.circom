@@ -2,23 +2,23 @@ pragma circom 2.0.3;
 
 include "../bigint_func.circom";
 
-function find_Fp12_sum(n, k, a, b, p) {
+function find_Fp12_sumBn254(n, k, a, b, p) {
     var out[6][2][50];
     for(var i=0; i<6; i++)
         out[i] = find_Fp2_sum(n, k, a[i], b[i], p);
     return out;
 }
 
-function find_Fp12_diff(n, k, a, b, p) {
+function find_Fp12_diffBn254(n, k, a, b, p) {
     var out[6][2][50];
     for(var i=0; i<6; i++)
         out[i] = find_Fp2_diff(n, k, a[i], b[i], p);
     return out;
 }
 
-function find_Fp12_product(n, k, a, b, p) {
+function find_Fp12_productBn254(n, k, a, b, p) {
     var l = 6;
-    var XI0 = 9; // w^6 = XI0 + u 
+    var XI0 = 9; // w^6 = XI0 + u
     var a0[l][50];
     var a1[l][50];
     var b0[l][50];
@@ -26,7 +26,7 @@ function find_Fp12_product(n, k, a, b, p) {
     var neg_b0[l][50];
     var neg_b1[l][50];
     var out[l][2][50];
-    for (var i = 0; i < l; i ++) { 
+    for (var i = 0; i < l; i ++) {
         for ( var j = 0; j < k; j ++) {
             a0[i][j] = a[i][0][j];
             a1[i][j] = a[i][1][j];
@@ -67,7 +67,7 @@ function find_Fp12_product(n, k, a, b, p) {
             real_carry[i] = zeros;
             imag_carry[i] = zeros;
         } else {
-            // real_carry[i] = real_init[i+l] * XI0 - imag_init_neg[i+l] 
+            // real_carry[i] = real_init[i+l] * XI0 - imag_init_neg[i+l]
             imag_init_neg[i+l][2*k+1] = 0;
             real_carry[i] = long_add(n, 2*k+2, long_scalar_mult(n, 2*k+1, XI0, real_init[i+l]), imag_init_neg[i+l]); // now 2*k+3 registers
             // imag_carry[i] = real_init[i+l] + imag_init[i+l] * XI0
@@ -97,7 +97,7 @@ function find_Fp12_product(n, k, a, b, p) {
 // a is 6 x 2 x k element of Fp^12
 // compute inverse. first multiply by conjugate a + bw (a,b in Fp^6, w^6 = XI0+u, u^2=-1)
 // then reduce to inverting in Fp^6
-function find_Fp12_inverse(n, k, p, a) {
+function find_Fp12_inverseBn254(n, k, p, a) {
     var A[6][2][50];
     var B[6][2][50];
     var Bw[6][2][50];
@@ -113,9 +113,9 @@ function find_Fp12_inverse(n, k, p, a) {
             }
         }
     }
-    var A2[6][2][50] = find_Fp12_product(n, k, A, A, p);
-    var B2[6][2][50] = find_Fp12_product(n, k, B, B, p);
-    var conj[6][2][50] = find_Fp12_diff(n, k, A, Bw, p);
+    var A2[6][2][50] = find_Fp12_productBn254(n, k, A, A, p);
+    var B2[6][2][50] = find_Fp12_productBn254(n, k, B, B, p);
+    var conj[6][2][50] = find_Fp12_diffBn254(n, k, A, Bw, p);
     var w2[6][2][50];
     for (var i = 0; i < 6; i ++) {
         for (var j = 0; j < 2; j ++) {
@@ -128,8 +128,8 @@ function find_Fp12_inverse(n, k, p, a) {
             }
         }
     }
-    var B2w2[6][2][50] = find_Fp12_product(n, k, B2, w2, p);
-    var conjProd[6][2][50] = find_Fp12_diff(n, k, A2, B2w2, p);
+    var B2w2[6][2][50] = find_Fp12_productBn254(n, k, B2, w2, p);
+    var conjProd[6][2][50] = find_Fp12_diffBn254(n, k, A2, B2w2, p);
     var a0[2][50];
     var a1[2][50];
     var a2[2][50];
@@ -140,16 +140,16 @@ function find_Fp12_inverse(n, k, p, a) {
             a2[i][m] = conjProd[4][i][m];
         }
     }
-    var conjProdInv[6][2][50] = find_Fp6_inverse(n, k, p, a0, a1, a2);
-    var out[6][2][50] = find_Fp12_product(n, k, conj, conjProdInv, p);
+    var conjProdInv[6][2][50] = find_Fp6_inverseBn254(n, k, p, a0, a1, a2);
+    var out[6][2][50] = find_Fp12_productBn254(n, k, conj, conjProdInv, p);
     return out;
 }
 
-// compute the inverse of a0 + a1v + a2v^2 in Fp6, where 
+// compute the inverse of a0 + a1v + a2v^2 in Fp6, where
 // v^3 = XI0+u, u^2 = -1, a0 a1 a2 in Fp2 (2 x k)
-// assume XI0^2 -1 < 2^n and 2*XI0 < 2^n 
+// assume XI0^2 -1 < 2^n and 2*XI0 < 2^n
 // returns an element in standard Fp12 representation (6 x 2 x k)
-function find_Fp6_inverse(n, k, p, a0, a1, a2) {
+function find_Fp6_inverseBn254(n, k, p, a0, a1, a2) {
     var out[6][2][50];
 
     var a0_squared[2][50] = find_Fp2_product(n, k, a0, a0, p);
@@ -161,7 +161,7 @@ function find_Fp6_inverse(n, k, p, a0, a1, a2) {
     var a0a1a2[2][50] = find_Fp2_product(n, k, a0a1, a2, p);
 
     var XI0 = 9;
-    assert( XI0 * XI0 - 1 < (1<<n) ); 
+    assert( XI0 * XI0 - 1 < (1<<n) );
     assert( 2*XI0 < (1<<n) );
 
     var v3[2][50]; // v^3 = XI0 + u
@@ -193,7 +193,7 @@ function find_Fp6_inverse(n, k, p, a0, a1, a2) {
             if (j == 0) {
                 if(i==0)
                     v6[i][j] = XI0*XI0 - 1;
-                else 
+                else
                     v6[i][j] = 2 * XI0;
             } else {
                 v6[i][j] = 0;
@@ -201,8 +201,8 @@ function find_Fp6_inverse(n, k, p, a0, a1, a2) {
         }
     }
 
-    // solves system of equations using Cramer's rule 
-    // [[a0, a2 v^3, a1 v^3], [a1, a0, a2 v^3], [a2, a1, a0]]^{-1} . [[1],[0],[0]] 
+    // solves system of equations using Cramer's rule
+    // [[a0, a2 v^3, a1 v^3], [a1, a0, a2 v^3], [a2, a1, a0]]^{-1} . [[1],[0],[0]]
     var v0_1[2][50] = find_Fp2_product(n, k, a1a2, v3, p);
     var v0_temp[2][50] = find_Fp2_diff(n, k, a0_squared, v0_1, p); // a0^2 - a1a2v^3
     var v1_1[2][50] = find_Fp2_product(n, k, a2_squared, v3, p);
@@ -231,7 +231,7 @@ function find_Fp6_inverse(n, k, p, a0, a1, a2) {
             for (var m = 0; m < 50; m ++) {
                 if (i > 1)
                 out[i][j][m] = 0;
-                else 
+                else
                 out[i][j][m] = 0;//v3[j][m];
             }
         }

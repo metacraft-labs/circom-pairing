@@ -34,8 +34,8 @@ function get_bn254_prime(n, k){
 
 function get_bn254_b(n, k){
     var p[50] = get_bn254_prime(n, k);
-    // returns 3 / (9 + u) 
-    var b[2][50]; 
+    // returns 3 / (9 + u)
+    var b[2][50];
     var xi[2][50];
     for(var i=0; i<2; i++)for(var j=0; j<k; j++){
         b[i][j] = 0;
@@ -43,17 +43,17 @@ function get_bn254_b(n, k){
     }
     b[0][0] = 3;
     xi[0][0] = 9;
-    xi[1][0] = 1; 
+    xi[1][0] = 1;
     return find_Fp2_product(n, k, b, find_Fp2_inverse(n, k, xi, p), p);
 }
 
 // assume q = 1 mod 6
-function get_Fp12_frobenius(n, k){
+function get_Fp12_frobeniusBn254(n, k){
     assert( (n==51 && k==5) || (n==43 && k==6) );
-    var coeff[12][6][2][20]; // 
+    var coeff[12][6][2][20]; //
     // coeff[j][i] represents an element in F_q^2
-    // F_q^12 = F_q^2[w] / (w^6 - (9+u)) 
-    // Apply Frobenius j times to w^i: (w^i)^(q^j) = coeff[j][i] * w^i where coeff[j][i] = (9+u)^{(q^j-1)/6 * i} 
+    // F_q^12 = F_q^2[w] / (w^6 - (9+u))
+    // Apply Frobenius j times to w^i: (w^i)^(q^j) = coeff[j][i] * w^i where coeff[j][i] = (9+u)^{(q^j-1)/6 * i}
     if( (n==51 && k==5) ){
         coeff[0][0][0][0] = 1;
         coeff[0][0][0][1] = 0;

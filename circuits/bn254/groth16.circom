@@ -30,9 +30,9 @@ template verifyProof(publicInputCount) {
     signal output out;
 
     // check proof consists of valid group elements
-    component negpaInG1 = SubgroupCheckG1(n, k);
-    component pbInG2 = SubgroupCheckG2(n, k);
-    component pcInG1 = SubgroupCheckG1(n, k);
+    component negpaInG1 = SubgroupCheckG1Bn254(n, k);
+    component pbInG2 = SubgroupCheckG2Bn254(n, k);
+    component pcInG1 = SubgroupCheckG1Bn254(n, k);
 
     for (var i = 0;i < 2;i++) {
         for (var j = 0;j < 2;j++) {
@@ -96,12 +96,12 @@ template verifyProof(publicInputCount) {
         for (var idx = 0;idx < k;idx++) {
             optmult.Q[0][i][idx] <== negpa[i][idx];
             optmult.Q[1][i][idx] <== VK[i][idx];
-            optmult.Q[2][i][idx] <== pc[i][idx];            
+            optmult.Q[2][i][idx] <== pc[i][idx];
         }
     }
 
     // exponentiate to get e(-A, B)*e(VK, gamma2)*e(C, delta2)
-    component finalexp = FinalExponentiate(n, k, p);
+    component finalexp = FinalExponentiateBn254(n, k, p);
     for(var i=0; i<6; i++)for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)
         finalexp.in[i][j][idx] <== optmult.out[i][j][idx];
 
