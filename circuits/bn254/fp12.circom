@@ -335,7 +335,7 @@ template SignedFp12MultiplyNoCarryCompressBn254(n, k, p, m_in, m_out) {
         nocarry.b[i][j][idx] <== b[i][j][idx];
     }
 
-    component reduce = Fp12Compress(n, k, k-1, p, m_out);
+    component reduce = Fp12CompressBn254(n, k, k-1, p, m_out);
     for (var i = 0; i < l; i++)for(var j = 0; j < 2; j++)
         for (var idx = 0; idx < 2 * k - 1; idx++)
             reduce.in[i][j][idx] <== nocarry.out[i][j][idx];
@@ -370,7 +370,7 @@ template SignedFp12CarryModPBn254(n, k, overflow, p) {
 }
 
 
-// version of Fp12Multiply that uses the prime reduction trick
+// version of Fp12MultiplyBn254 that uses the prime reduction trick
 // takes longer to compile
 // assumes p has k registers with kth register nonzero
 template Fp12MultiplyBn254(n, k, p) {
@@ -426,7 +426,7 @@ template Fp12MultiplyThree(n, k, p) {
             abc.b[i][j][idx] <== c[i][j][idx];
     }
 
-    component compress = Fp12Compress(n, k, 2*k-2, p, 4*n + LOGK3);
+    component compress = Fp12CompressBn254(n, k, 2*k-2, p, 4*n + LOGK3);
     for(var i=0; i<l; i++)for(var j=0; j<2; j++)for(var idx=0; idx<3*k-2; idx++)
         compress.in[i][j][idx] <== abc.out[i][j][idx];
 
@@ -445,7 +445,7 @@ template Fp12SquareBn254(n, k, p) {
     signal output out[6][2][k];
 
     // for now just use plain multiplication, this can be optimized later
-    component square = Fp12Multiply(n, k, p);
+    component square = Fp12MultiplyBn254(n, k, p);
     for(var i=0; i<6; i++)for(var j=0; j<k; j++){
         square.a[i][0][j] <== in[i][0][j];
         square.a[i][1][j] <== in[i][1][j];
@@ -498,7 +498,7 @@ template Fp12InvertBn254(n, k, p){
         outRangeChecks[i][j][m].in <== out[i][j][m];
     }
 
-    component in_out = Fp12Multiply(n, k, p);
+    component in_out = Fp12MultiplyBn254(n, k, p);
     for(var i=0; i<6; i++) for(var j=0; j<2; j++) for(var m=0; m<k; m++) {
         in_out.a[i][j][m] <== in[i][j][m];
         in_out.b[i][j][m] <== out[i][j][m];
@@ -561,7 +561,7 @@ template Fp12ExpBn254(n, k, e, p) {
             }
 
             if( ((e >> b) & 1) == 0 ){
-                compress[b] = Fp12Compress(n, k, k-1, p, 3*n + LOGK2);
+                compress[b] = Fp12CompressBn254(n, k, k-1, p, 3*n + LOGK2);
                 for(var i=0; i<6; i++)for(var j=0; j<2; j++)for(var idx=0; idx<2*k-1; idx++)
                     compress[b].in[i][j][idx] <== square[b].out[i][j][idx];
 
@@ -578,7 +578,7 @@ template Fp12ExpBn254(n, k, e, p) {
                         mult[curid].b[i][j][idx] <== in[i][j][idx];
                 }
 
-                compress[b] = Fp12Compress(n, k, 2*k-2, p, 4*n + LOGK3);
+                compress[b] = Fp12CompressBn254(n, k, 2*k-2, p, 4*n + LOGK3);
                 for(var i=0; i<6; i++)for(var j=0; j<2; j++)for(var idx=0; idx<3*k-2; idx++)
                     compress[b].in[i][j][idx] <== mult[curid].out[i][j][idx];
 

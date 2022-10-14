@@ -348,7 +348,7 @@ template Fp12CyclotomicExpBn254(n, k, e, p) {
                 }
             }else{
                 // multiply what we already have with pow2[i]
-                mult[curid] = Fp12Multiply(n, k, p);
+                mult[curid] = Fp12MultiplyBn254(n, k, p);
                 for(var id=0; id<6; id++)for(var eps=0; eps<2; eps++)for(var j=0; j<k; j++)
                     mult[curid].a[id][eps][j] <== Dpow2[curid].out[id][eps][j];
                 if(curid == 1){
@@ -438,8 +438,8 @@ template BNFinalExpHardPart(n, k, p){
     // y5 = 1/mx2
     // y6 = 1/(mx3 * mx3p)
 
-    component y4_den = Fp12Multiply(n, k, p);
-    component y6_den = Fp12Multiply(n, k, p);
+    component y4_den = Fp12MultiplyBn254(n, k, p);
+    component y6_den = Fp12MultiplyBn254(n, k, p);
     for(var id=0; id<6; id++)for(var eps=0; eps<2; eps++)for(var j=0; j<k; j++){
         y4_den.a[id][eps][j] <== mx.out[id][eps][j];
         y4_den.b[id][eps][j] <== mx2p.out[id][eps][j];
@@ -463,7 +463,7 @@ template BNFinalExpHardPart(n, k, p){
 
     // out = y0 * y1^2 * y2^6 * y3^12 * y4^18 * y5^30 * y6^36
     // we compute this using the vectorial addition chain from p. 6 of https://eprint.iacr.org/2008/490.pdf
-    component y6sq = Fp12Multiply(n, k, p);
+    component y6sq = Fp12MultiplyBn254(n, k, p);
     for(var id=0; id<6; id++)for(var eps=0; eps<2; eps++)for(var j=0; j<k; j++){
         y6sq.a[id][eps][j] <== y6.out[id][eps][j];
         y6sq.b[id][eps][j] <== y6.out[id][eps][j];
@@ -480,7 +480,7 @@ template BNFinalExpHardPart(n, k, p){
         T1_1.b[id][eps][j] <== y3.out[id][eps][j];
         T1_1.c[id][eps][j] <== y5.out[id][eps][j];
     }
-    component T0_2 = Fp12Multiply(n, k, p);
+    component T0_2 = Fp12MultiplyBn254(n, k, p);
     for(var id=0; id<6; id++)for(var eps=0; eps<2; eps++)for(var j=0; j<k; j++){
         T0_2.a[id][eps][j] <== T0_1.out[id][eps][j];
         T0_2.b[id][eps][j] <== mx2p2.out[id][eps][j];
@@ -491,17 +491,17 @@ template BNFinalExpHardPart(n, k, p){
         T1_2.b[id][eps][j] <== T1_1.out[id][eps][j];
         T1_2.c[id][eps][j] <== T0_2.out[id][eps][j];
     }
-    component T1_3 = Fp12Multiply(n, k, p);
+    component T1_3 = Fp12MultiplyBn254(n, k, p);
     for(var id=0; id<6; id++)for(var eps=0; eps<2; eps++)for(var j=0; j<k; j++){
         T1_3.a[id][eps][j] <== T1_2.out[id][eps][j];
         T1_3.b[id][eps][j] <== T1_2.out[id][eps][j];
     }
-    component T0_3 = Fp12Multiply(n, k, p);
+    component T0_3 = Fp12MultiplyBn254(n, k, p);
     for(var id=0; id<6; id++)for(var eps=0; eps<2; eps++)for(var j=0; j<k; j++){
         T0_3.a[id][eps][j] <== T1_3.out[id][eps][j];
         T0_3.b[id][eps][j] <== y1.out[id][eps][j];
     }
-    component T1_4 = Fp12Multiply(n, k, p);
+    component T1_4 = Fp12MultiplyBn254(n, k, p);
     for(var id=0; id<6; id++)for(var eps=0; eps<2; eps++)for(var j=0; j<k; j++){
         T1_4.a[id][eps][j] <== T1_3.out[id][eps][j];
         T1_4.b[id][eps][j] <== y0.out[id][eps][j];
@@ -529,12 +529,12 @@ template FinalExpEasyPartBn254(n, k, p){
         f1.in[id][eps][j] <== in[id][eps][j];
 
     // in^{-1}
-    component f2 = Fp12Invert(n, k, p);
+    component f2 = Fp12InvertBn254(n, k, p);
     for(var id=0; id<6; id++)for(var eps=0; eps<2; eps++)for(var j=0; j<k; j++)
         f2.in[id][eps][j] <== in[id][eps][j];
 
     // in^{q^6 - 1}
-    component f3 = Fp12Multiply(n, k, p);
+    component f3 = Fp12MultiplyBn254(n, k, p);
     for(var id=0; id<6; id++)for(var eps=0; eps<2; eps++)for(var j=0; j<k; j++){
         f3.a[id][eps][j] <== f1.out[id][eps][j];
         f3.b[id][eps][j] <== f2.out[id][eps][j];
@@ -546,7 +546,7 @@ template FinalExpEasyPartBn254(n, k, p){
         f4.in[id][eps][j] <== f3.out[id][eps][j];
 
     // in^{(q^6-1)(q^2+1)} = f4 * f3
-    component f5 = Fp12Multiply(n, k, p);
+    component f5 = Fp12MultiplyBn254(n, k, p);
     for(var id=0; id<6; id++)for(var eps=0; eps<2; eps++)for(var j=0; j<k; j++){
         f5.a[id][eps][j] <== f3.out[id][eps][j];
         f5.b[id][eps][j] <== f4.out[id][eps][j];

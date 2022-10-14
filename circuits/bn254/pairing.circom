@@ -343,7 +343,7 @@ template Fp12MultiplyWithLineUnequalFp2Bn254(n, k, kg, overflowg, q){
         mult.b[i][j][idx] <== line.out[i][j][idx];
 
 
-    component reduce = Fp12Compress(n, k, k + kg - 2, q, overflowg + 3*n + LOGK3); // 6 x 2 x k registers abs val < 12 k * min(kg, 2k - 1) * 6*(2+XI0) * (k + kg - 1) *  2^{overflowg + 3n}
+    component reduce = Fp12CompressBn254(n, k, k + kg - 2, q, overflowg + 3*n + LOGK3); // 6 x 2 x k registers abs val < 12 k * min(kg, 2k - 1) * 6*(2+XI0) * (k + kg - 1) *  2^{overflowg + 3n}
     for(var i=0; i<6; i++)for(var j=0; j<2; j++)for(var idx=0; idx<2*k + kg - 2; idx++)
         reduce.in[i][j][idx] <== mult.out[i][j][idx];
 
@@ -391,7 +391,7 @@ template Fp12MultiplyWithLineEqualFp2(n, k, p){
         mult.b[i][j][idx] <== line.out[i][j][idx];
 
 
-    component reduce = Fp12Compress(n, k, 3*k-3, p, 5*n + LOGK4); // 6 x 2 x k registers abs val < 12 k^2 (XI0+1) * 6*(2+XI0) * (3k - 2) *  2^{5n}
+    component reduce = Fp12CompressBn254(n, k, 3*k-3, p, 5*n + LOGK4); // 6 x 2 x k registers abs val < 12 k^2 (XI0+1) * 6*(2+XI0) * (3k - 2) *  2^{5n}
     for(var i=0; i<6; i++)for(var j=0; j<2; j++)for(var idx=0; idx<4*k-3; idx++)
         reduce.in[i][j][idx] <== mult.out[i][j][idx];
 
@@ -475,7 +475,7 @@ template MillerLoopFp2Bn254(n, k, b0, b1, loopCount, p){
                 square[i].b[l][j][idx] <== f[i+1][l][j][idx];
             }
 
-            line[i] = LineFunctionEqualFp2(n, k, p); // 6 x 2 x k registers in [0, 2^n)
+            line[i] = LineFunctionEqualFp2Bn254(n, k, p); // 6 x 2 x k registers in [0, 2^n)
             for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)for(var l=0; l<2; l++)
                 line[i].P[j][l][idx] <== R[i+1][j][l][idx];
             for(var eps=0; eps<2; eps++)
@@ -489,7 +489,7 @@ template MillerLoopFp2Bn254(n, k, b0, b1, loopCount, p){
             for(var l=0; l<6; l++)for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)
                 nocarry[i].b[l][j][idx] <== line[i].out[l][j][idx];
 
-            compress[i] = Fp12Compress(n, k, 2*k-2, p, 4*n + LOGK3); // 6 x 2 x k registers < (6 * (2+ XI0))^2 * k^2 * (2k-1) * 2^{4n} )
+            compress[i] = Fp12CompressBn254(n, k, 2*k-2, p, 4*n + LOGK3); // 6 x 2 x k registers < (6 * (2+ XI0))^2 * k^2 * (2k-1) * 2^{4n} )
             for(var l=0; l<6; l++)for(var j=0; j<2; j++)for(var idx=0; idx<3*k-2; idx++)
                 compress[i].in[l][j][idx] <== nocarry[i].out[l][j][idx];
 
@@ -507,7 +507,7 @@ template MillerLoopFp2Bn254(n, k, b0, b1, loopCount, p){
                 for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)for(var l=0; l<2; l++)
                     R[i][j][l][idx] <== Pdouble[i].out[j][l][idx];
             }else{
-                fadd[curid] = Fp12MultiplyWithLineUnequalFp2(n, k, k, n, p);
+                fadd[curid] = Fp12MultiplyWithLineUnequalFp2Bn254(n, k, k, n, p);
                 for(var l=0; l<6; l++)for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)
                     fadd[curid].g[l][j][idx] <== fdouble[i].out[l][j][idx];
 
@@ -674,7 +674,7 @@ template OptimizedMillerLoopFp2(n, k, b0, b1, pseudoBinaryEncoding, loopBitLengt
                 square[i].b[l][j][idx] <== f[i+1][l][j][idx];
             }
 
-            line[i] = LineFunctionEqualFp2(n, k, p); // 6 x 2 x k registers in [0, 2^n)
+            line[i] = LineFunctionEqualFp2Bn254(n, k, p); // 6 x 2 x k registers in [0, 2^n)
             for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)for(var l=0; l<2; l++)
                 line[i].P[j][l][idx] <== R[i+1][j][l][idx];
             for(var eps=0; eps<2; eps++)
@@ -688,7 +688,7 @@ template OptimizedMillerLoopFp2(n, k, b0, b1, pseudoBinaryEncoding, loopBitLengt
             for(var l=0; l<6; l++)for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)
                 nocarry[i].b[l][j][idx] <== line[i].out[l][j][idx];
 
-            compress[i] = Fp12Compress(n, k, 2*k-2, p, 4*n + LOGK3); // 6 x 2 x k registers < (6 * (2+ XI0))^2 * k^2 * (2k-1) * 2^{4n} )
+            compress[i] = Fp12CompressBn254(n, k, 2*k-2, p, 4*n + LOGK3); // 6 x 2 x k registers < (6 * (2+ XI0))^2 * k^2 * (2k-1) * 2^{4n} )
             for(var l=0; l<6; l++)for(var j=0; j<2; j++)for(var idx=0; idx<3*k-2; idx++)
                 compress[i].in[l][j][idx] <== nocarry[i].out[l][j][idx];
 
@@ -706,7 +706,7 @@ template OptimizedMillerLoopFp2(n, k, b0, b1, pseudoBinaryEncoding, loopBitLengt
                 for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)for(var l=0; l<2; l++)
                     R[i][j][l][idx] <== Pdouble[i].out[j][l][idx];
             }else{
-                fadd[curid] = Fp12MultiplyWithLineUnequalFp2(n, k, k, n, p);
+                fadd[curid] = Fp12MultiplyWithLineUnequalFp2Bn254(n, k, k, n, p);
                 for(var l=0; l<6; l++)for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)
                     fadd[curid].g[l][j][idx] <== fdouble[i].out[l][j][idx];
 
@@ -873,7 +873,7 @@ template MillerLoopThreeFp2(n, k, b0, b1, loopCount, p){
         }else{
             // compute fdouble[i] = f[i+1]^2 * \prod_{idP=0}^{numPairing-1} l_{R[idP][i+1], R[idP][i+1]}(Q)
             for(var idP=0; idP<numPairing; idP++){
-                line[i][idP] = LineFunctionEqualFp2(n, k, p); // 6 x 2 x k registers in [0, 2^n)
+                line[i][idP] = LineFunctionEqualFp2Bn254(n, k, p); // 6 x 2 x k registers in [0, 2^n)
                 for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)for(var l=0; l<2; l++)
                     line[i][idP].P[j][l][idx] <== R[i+1][idP][j][l][idx];
                 for(var l=0; l<2; l++)for(var idx=0; idx<k; idx++)
@@ -908,7 +908,7 @@ template MillerLoopThreeFp2(n, k, b0, b1, loopCount, p){
             }else{
                 // fdouble[i] * \prod_{idP=0}^{numPairing-1} l_{Pdouble[i][idP], P[idP]}(Q[idP])
                 for(var idP=0; idP<numPairing; idP++){
-                    fadd[curid][idP] = Fp12MultiplyWithLineUnequalFp2(n, k, k, n, p);
+                    fadd[curid][idP] = Fp12MultiplyWithLineUnequalFp2Bn254(n, k, k, n, p);
                     for(var l=0; l<6; l++)for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++){
                         fadd[curid][idP].g[l][j][idx] <== idP == 0 ? fdouble[i].out[l][j][idx] : fadd[curid][idP-1].out[l][j][idx];
                     }
@@ -1081,7 +1081,7 @@ template OptimizedMillerLoopThreeFp2(n, k, b0, b1, pseudoBinaryEncoding, loopBit
         }else{
             // compute fdouble[i] = f[i+1]^2 * \prod_{idP=0}^{numPairing-1} l_{R[idP][i+1], R[idP][i+1]}(Q)
             for(var idP=0; idP<numPairing; idP++){
-                line[i][idP] = LineFunctionEqualFp2(n, k, p); // 6 x 2 x k registers in [0, 2^n)
+                line[i][idP] = LineFunctionEqualFp2Bn254(n, k, p); // 6 x 2 x k registers in [0, 2^n)
                 for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++)for(var l=0; l<2; l++)
                     line[i][idP].P[j][l][idx] <== R[i+1][idP][j][l][idx];
                 for(var l=0; l<2; l++)for(var idx=0; idx<k; idx++)
@@ -1116,7 +1116,7 @@ template OptimizedMillerLoopThreeFp2(n, k, b0, b1, pseudoBinaryEncoding, loopBit
             }else{
                 // fdouble[i] * \prod_{idP=0}^{numPairing-1} l_{Pdouble[i][idP], P[idP]}(Q[idP])
                 for(var idP=0; idP<numPairing; idP++){
-                    fadd[curid][idP] = Fp12MultiplyWithLineUnequalFp2(n, k, k, n, p);
+                    fadd[curid][idP] = Fp12MultiplyWithLineUnequalFp2Bn254(n, k, k, n, p);
                     for(var l=0; l<6; l++)for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++){
                         fadd[curid][idP].g[l][j][idx] <== idP == 0 ? fdouble[i].out[l][j][idx] : fadd[curid][idP-1].out[l][j][idx];
                     }
@@ -1296,7 +1296,7 @@ template OptimizedMillerLoopProductFp2(n, k, b0, b1, numPairing, pseudoBinaryEnc
                     R[i][idP][j][l][idx] <== pseudoBinaryEncoding[i] == 1 ? P[idP][j][l][idx] : negP[idP][j][l][idx];
         }else{
             // compute fdouble[i] = f[i+1]^2 * \prod_{idP=0}^{numPairing-1} l_{R[idP][i+1], R[idP][i+1]}(Q)
-            fSquare[i] = Fp12Multiply(n, k, p);
+            fSquare[i] = Fp12MultiplyBn254(n, k, p);
             for(var l=0; l<6; l++)for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++){
                 fSquare[i].a[l][j][idx] <== f[i+1][l][j][idx];
                 fSquare[i].b[l][j][idx] <== f[i+1][l][j][idx];
@@ -1326,7 +1326,7 @@ template OptimizedMillerLoopProductFp2(n, k, b0, b1, numPairing, pseudoBinaryEnc
             }else{
                 // fdouble[i] * \prod_{idP=0}^{numPairing-1} l_{Pdouble[i][idP], P[idP]}(Q[idP])
                 for(var idP=0; idP<numPairing; idP++){
-                    fadd[curid][idP] = Fp12MultiplyWithLineUnequalFp2(n, k, k, n, p);
+                    fadd[curid][idP] = Fp12MultiplyWithLineUnequalFp2Bn254(n, k, k, n, p);
                     for(var l=0; l<6; l++)for(var j=0; j<2; j++)for(var idx=0; idx<k; idx++){
                         fadd[curid][idP].g[l][j][idx] <== idP == 0 ? lineProduct[i][numPairing-1].out[l][j][idx] : fadd[curid][idP-1].out[l][j][idx];
                     }
