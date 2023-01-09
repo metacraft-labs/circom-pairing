@@ -358,6 +358,52 @@ template EllipticCurveAdd(n, k, a1, b1, p){
     }
 }
 
+template EllipticCurveSubtract(n, k, a1, b1, p) {
+    signal input a[2][k];
+    signal input aIsInfinity;
+    signal input b[2][k];
+    signal input bIsInfinity;
+
+    signal output out[2][k];
+    signal output isInfinity;
+
+    var bNegate[2][k];
+
+    for (var i = 0; i < k; i++) {
+      bNegate[0][i] = b[0][i];
+    }
+
+    component negate = FpNegate(n, k, p);
+
+    for (var i = 0; i < k; i++) {
+      negate.in[i] <== b[1][i];
+    }
+
+    for (var i = 0; i < k; i++) {
+      bNegate[1][i] = negate.out[i];
+    }
+
+    component add = EllipticCurveAdd(n, k, a1, b1, p);
+
+    add.aIsInfinity <== aIsInfinity;
+    add.bIsInfinity <== bIsInfinity;
+
+    for (var i = 0; i < 2; i++) {
+      for (var j = 0; j < k; j++) {
+        add.a[i][j] <== a[i][j];
+        add.b[i][j] <== bNegate[i][j];
+      }
+    }
+
+    for (var i = 0; i < 2; i++) {
+      for (var j = 0; j < k; j++) {
+        out[i][j] <== add.out[i][j];
+      }
+    }
+
+    isInfinity <== add.isInfinity;
+}
+
 // Curve E : y^2 = x^3 + b
 // Inputs:
 //  in is 2 x k array where P = (x, y) is a point in E(Fp)
@@ -369,7 +415,7 @@ template EllipticCurveAdd(n, k, a1, b1, p){
 //  x in [0, 2^250)
 //  `in` is point in E even if inIsInfinity = 1 just so nothing goes wrong
 //  E(Fp) has no points of order 2
-template EllipticCurveScalarMultiply(n, k, b, x, p){
+template EllipticCurveScalarMultiply(n, k, b, x, p) {
     signal input in[2][k];
     signal input inIsInfinity;
 
