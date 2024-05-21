@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 /*! noble-bls12-381 - MIT License (c) 2019 Paul Miller (paulmillr.com) */
 // bls12-381 is a construction of two curves:
 // 1. Fp: (x, y)
